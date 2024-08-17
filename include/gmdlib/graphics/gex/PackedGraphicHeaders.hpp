@@ -15,6 +15,8 @@ namespace gmdlib::gfx::gex
         std::vector<uint8_t> unpacking_process_data;
 
     public:
+        size_t calc_bitmap_size() const;
+
         PackedGraphicHeaders() = default;
         explicit PackedGraphicHeaders(std::istream &is);
         explicit PackedGraphicHeaders(std::span<const uint8_t> bin);

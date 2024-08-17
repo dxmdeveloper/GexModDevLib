@@ -31,4 +31,5 @@ add_executable(GexModLibCpp
         src/graphics/Image.cpp
         include/gmdlib/graphics/gex/PaletteBGR555.hpp
         src/graphics/gex/PaletteBGR555.cpp
-        src/graphics/gex/Graphic.cpp)
+        src/graphics/gex/Graphic.cpp
+        src/graphics/gex/PackedGraphic.cpp)
