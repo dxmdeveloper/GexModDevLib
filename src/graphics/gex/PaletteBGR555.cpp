@@ -45,6 +45,7 @@ namespace gmdlib::gfx::gex
         for (auto &color: pal.colors) {
             reader >> color;
         }
+        return is;
     }
 
     static int get_color_cnt(uint8_t raw_val)

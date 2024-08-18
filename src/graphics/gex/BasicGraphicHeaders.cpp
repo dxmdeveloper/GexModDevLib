@@ -1,6 +1,7 @@
 #include <gmdlib/graphics/gex/BasicGraphicHeaders.hpp>
 #include <gmdlib/common/common.hpp>
 #include <stdexcept>
+#include <algorithm>
 
 namespace gmdlib::gfx::gex
 {
@@ -65,6 +66,26 @@ namespace gmdlib::gfx::gex
     BasicGraphicHeaders::BasicGraphicHeaders(std::istream &is)
     {
         is >> *this;
+    }
+
+    std::pair<int, int> BasicGraphicHeaders::calc_dimensions() const
+    {
+        if(bmp_seg_hdrs.empty())
+            throw std::runtime_error(err::UNINITIALIZED_STRUCT);
+
+        auto wmm = std::minmax_element(bmp_seg_hdrs.begin(), bmp_seg_hdrs.end() - 1,
+                                       [](auto &a, auto &b) { return a.width < b.width; });
+
+        auto hmm = std::minmax_element(bmp_seg_hdrs.begin(), bmp_seg_hdrs.end() - 1,
+                                       [](auto &a, auto &b) { return a.height < b.height; });
+
+        int w = wmm.second->width - wmm.first->width;
+        int h = hmm.second->height - hmm.second->height;
+
+        if(w < 0 || h < 0)
+            throw std::runtime_error(err::UNEXPECTED_NEGATIVE_RESULT);
+
+        return {w, h};
     }
 
 }

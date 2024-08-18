@@ -1,8 +1,19 @@
 #include "gmdlib/graphics/gex/PackedGraphicHeaders.hpp"
 #include <gmdlib/helpers/BinaryStreamReader.hpp>
+#include <numeric>
 
 namespace gmdlib::gfx::gex
 {
+    size_t PackedGraphicHeaders::calc_bitmap_size() const
+    {
+        auto bpp = get_bpp();
+        auto sum_func = [bpp](const int &a, const uint8_t &b) {
+            if (b >= 0x80) return a + bpp / 2;
+            return a + (b == 0 ? 4096 / bpp : b * 32 / bpp);
+        };
+        return std::accumulate(unpacking_process_data.begin(), unpacking_process_data.end(), 0, sum_func);
+    }
+
     PackedGraphicHeaders::PackedGraphicHeaders(std::span<const uint8_t> bin)
             : BasicGraphicHeaders(bin)
     {

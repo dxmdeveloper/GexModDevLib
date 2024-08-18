@@ -13,6 +13,8 @@ namespace gmdlib::gfx::gex
         std::vector<BmpSegmentHeader> bmp_seg_hdrs; // null terminated
 
     public:
+        std::pair<int, int> calc_dimensions() const;
+
         size_t get_raw_size_of_headers() const;
         int get_bpp() const;
 
@@ -24,5 +26,6 @@ namespace gmdlib::gfx::gex
         explicit BasicGraphicHeaders(std::span<const uint8_t> bin);
 
         friend std::istream &operator>>(std::istream &is, BasicGraphicHeaders &ghdr);
+
     };
 }
