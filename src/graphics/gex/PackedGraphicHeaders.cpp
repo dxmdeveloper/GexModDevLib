@@ -45,6 +45,7 @@ namespace gmdlib::gfx::gex
         bin::le::BinaryStreamReader reader(&is);
         uint32_t upkg_dat_len;
         reader >> upkg_dat_len;
+        upkg_dat_len -= 4;
 
         if (upkg_dat_len > config::MAX_UNPKG_DATA_LEN)
             throw std::runtime_error(err::UNPKG_DATA_LEN_LIMIT_EXCEEDED);

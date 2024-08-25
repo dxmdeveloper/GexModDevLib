@@ -49,6 +49,7 @@ namespace gmdlib::gfx::gex
     PackedGraphic::PackedGraphic(std::istream &is, PaletteBGR555 pal) : Graphic{std::move(pal)}
     {
         is >> headers;
+
         bitmap = std::vector<uint8_t>(headers.calc_bitmap_size());
         is.read((char *) bitmap.data(), bitmap.size());
     }
@@ -83,43 +84,37 @@ namespace gmdlib::gfx::gex
             auto operation = UnpackingOperation(!!(unpacking_inst & 0x80));
             uint8_t unpack_val = unpacking_inst & 0x7F;
 
-            int repeats = (unpack_val == 0 ? 4096 : unpack_val * 32) / 8 /*/ bpp */;
-
+            int repeats = (unpack_val == 0 ? 512 : unpack_val * 4);
             for (int r = 0; r < repeats; r++) {
                 uint bmp_ind{};
 
-                auto get_cx = [&](uint seg_pix) {
-                    return seg_pix % bmp_seg->width;
+                // lambdas to calculate x and y depending on the segment pixel index and position of the segment
+                auto get_x = [&](uint seg_pix) {
+                    return (seg_pix % bmp_seg->width) + bmp_seg->rel_position_x;
                 };
-                auto get_cy = [&](uint seg_pix) {
-                    return seg_pix / bmp_seg->width;
-                };
-                auto get_x = [&](uint seg_pix){
-                    return get_cx(seg_pix) + bmp_seg->rel_position_x;
-                };
-                auto get_y = [&](uint seg_pix){
-                    return get_cy(seg_pix) + bmp_seg->rel_position_y;
+                auto get_y = [&](uint seg_pix) {
+                    return (seg_pix / bmp_seg->width) + bmp_seg->rel_position_y;
                 };
 
                 // switch to next segment if previous was filled
                 // the second condition shouldn't happen, but should be handled
-                if (get_cy(seg_pix_ind) >= bmp_seg->height ||
-                    (bpp == 4 && get_cy(seg_pix_ind + 1) == bmp_seg->height)
-                        ) {
+                if (seg_pix_ind / bmp_seg->width >= bmp_seg->height ||
+                    (bpp == 4 && (seg_pix_ind + 1) / bmp_seg->width == bmp_seg->height)) {
                     next_seg();
                     if (bmp_seg->is_null()) break;
                 }
 
+                // update pixel index based on operation type and unpacking value
                 switch (operation) {
                     case UnpackingOperation::draw_n :
                         bmp_ind = pix_ind++;
                         break;
                     case UnpackingOperation::repeat_4_bytes :
-                        bmp_ind = pix_ind + r % 4;
+                        bmp_ind = pix_ind + (r % 4);
                         break;
                 }
 
-
+                // draw pixels
                 if constexpr (bpp == 8) {
                     img.set_pixel(ColorRGBA(palette->at(bitmap[bmp_ind])), get_x(seg_pix_ind), get_y(seg_pix_ind));
                 } else {
@@ -131,7 +126,7 @@ namespace gmdlib::gfx::gex
             }
 
             if (operation == UnpackingOperation::repeat_4_bytes) {
-                pix_ind += 4 /*32 / bpp */;
+                pix_ind += 4;
             }
         }
 

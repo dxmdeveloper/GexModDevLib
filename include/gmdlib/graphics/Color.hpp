@@ -12,7 +12,7 @@ namespace gmdlib::gfx
         uint8_t red = 0;
         uint8_t green = 0;
         uint8_t blue = 0;
-        uint8_t alpha = 255;
+        uint8_t alpha = 0;
 
     public:
         bool is_fully_transparent() const { return alpha == 0; }
@@ -20,13 +20,11 @@ namespace gmdlib::gfx
         ColorRGBA() = default;
         explicit ColorRGBA(BGR555 bgr555)
         {
-            if (bgr555 == 0) {
-                alpha = 0;
-                return;
-            }
+            if (bgr555 == 0) return;
             red = 8 * ((bgr555) & 0b11111);
             green = 8 * ((bgr555 >> 5) & 0b11111);
             blue = 8 * ((bgr555 >> 10) & 0b11111);
+            alpha = 255;
         }
 
         static inline ColorRGBA from_RGB555(BGR555 value)
