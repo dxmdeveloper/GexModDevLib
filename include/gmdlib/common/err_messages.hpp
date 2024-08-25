@@ -17,4 +17,5 @@ namespace gmdlib::err
     constexpr char COLOR_PALETTE_NOT_ASSIGNED[]{"Color palette is not assigned"};
     constexpr char COLOR_PALETTE_INCOMPATIBLE[]{
             "Color palette is incompatible (different count of colors than expected)"};
+    constexpr char INVALID_FORMAT_GRAPHIC_TYPE[]{"Graphic is of a different type than expected"};
 }

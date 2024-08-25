@@ -17,6 +17,9 @@ namespace gmdlib::gfx::gex
     PackedGraphicHeaders::PackedGraphicHeaders(std::span<const uint8_t> bin)
             : BasicGraphicHeaders(bin)
     {
+        if(!prim_hdr.is_packed())
+            throw std::runtime_error(err::INVALID_FORMAT_GRAPHIC_TYPE);
+
         bin = bin.subspan(BasicGraphicHeaders::get_raw_size_of_headers());
         if (bin.size() < 2)
             throw std::runtime_error(err::UNEXPECTED_END_OF_DATA);
@@ -36,6 +39,9 @@ namespace gmdlib::gfx::gex
 
     PackedGraphicHeaders::PackedGraphicHeaders(std::istream &is) : BasicGraphicHeaders(is)
     {
+        if(!prim_hdr.is_packed())
+            throw std::runtime_error(err::INVALID_FORMAT_GRAPHIC_TYPE);
+
         bin::le::BinaryStreamReader reader(&is);
         uint32_t upkg_dat_len;
         reader >> upkg_dat_len;

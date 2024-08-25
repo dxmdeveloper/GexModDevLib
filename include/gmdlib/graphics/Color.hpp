@@ -34,4 +34,5 @@ namespace gmdlib::gfx
             return ColorRGBA(value);
         }
     };
+    static_assert(sizeof(ColorRGBA) == 4);
 }

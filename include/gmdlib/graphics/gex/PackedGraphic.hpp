@@ -14,7 +14,7 @@ namespace gmdlib::gfx::gex
         std::vector<uint8_t> bitmap;
 
     public:
-        Image draw();
+        Image draw() const;
 
         PackedGraphic() = default;
 
@@ -23,11 +23,13 @@ namespace gmdlib::gfx::gex
 
         PackedGraphic(PackedGraphicHeaders hdrs, std::span<const uint8_t> bmp_bin, PaletteBGR555 pal);
 
+        PackedGraphic(std::istream &is, PaletteBGR555 pal);
+
     private:
         void init_bitmap(std::span<const uint8_t> bmp_bin);
 
         template<int bpp>
-        Image draw_body();
+        Image draw_body() const;
     };
 
 }

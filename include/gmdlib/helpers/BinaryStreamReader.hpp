@@ -10,7 +10,8 @@
 namespace gmdlib::bin::le
 {
 
-    class BinaryStreamReader {
+    class BinaryStreamReader
+    {
     public:
         uint8_t read_u8();
         int8_t read_i8();
@@ -69,34 +70,34 @@ namespace gmdlib::bin::le
     inline uint16_t BinaryStreamReader::read_u16()
     {
         uint16_t val;
-        *stream >> val;
+        stream->read((char *) &val, 2);
         return gmdlib::bin::le::read_u16(&val);
     }
 
     inline int16_t BinaryStreamReader::read_i16()
     {
         int16_t val;
-        *stream >> val;
+        stream->read((char *) &val, 2);
         return gmdlib::bin::le::read_i16(&val);
     }
 
     inline uint32_t BinaryStreamReader::read_u32()
     {
         uint32_t val;
-        *stream >> val;
+        stream->read((char *) &val, 4);
         return gmdlib::bin::le::read_u32(&val);
     }
 
     inline int32_t BinaryStreamReader::read_i32()
     {
         int32_t val;
-        *stream >> val;
+        stream->read((char *) &val, 4);
         return gmdlib::bin::le::read_i32(&val);
     }
 
     inline void BinaryStreamReader::read(std::span<uint8_t> buf, size_t n)
     {
-        if (buf.size() < n) throw std::runtime_error("buffor is to small");
+        if (buf.size() < n) throw std::runtime_error("buffer is too small");
         stream->read(reinterpret_cast<char *>(buf.data()), std::streamsize(n));
     }
 

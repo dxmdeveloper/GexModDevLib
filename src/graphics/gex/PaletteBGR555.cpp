@@ -35,17 +35,27 @@ namespace gmdlib::gfx::gex
 
     std::istream &operator>>(std::istream &is, PaletteBGR555 &pal)
     {
-        bin::le::BinaryStreamReader reader(&is);
         uint8_t c_cnt{};
 
         is >> c_cnt;
         is.ignore(3);
 
+        bin::le::BinaryStreamReader reader(&is);
         pal.colors = std::vector<BGR555>(get_color_cnt(c_cnt));
         for (auto &color: pal.colors) {
             reader >> color;
         }
         return is;
+    }
+
+    BGR555 PaletteBGR555::at(uint ind) const
+    {
+        return colors.at(ind);
+    }
+
+    BGR555 PaletteBGR555::operator[](uint ind)
+    {
+        return colors[ind];
     }
 
     static int get_color_cnt(uint8_t raw_val)

@@ -8,7 +8,7 @@ enum class UnpackingOperation
 
 namespace gmdlib::gfx::gex
 {
-    Image PackedGraphic::draw()
+    Image PackedGraphic::draw() const
     {
         switch (headers.get_bpp()) {
             case 4:
@@ -46,11 +46,18 @@ namespace gmdlib::gfx::gex
         std::copy(bmp_bin.begin(), bmp_bin.begin() + bmp_size, bitmap.data());
     }
 
+    PackedGraphic::PackedGraphic(std::istream &is, PaletteBGR555 pal) : Graphic{std::move(pal)}
+    {
+        is >> headers;
+        bitmap = std::vector<uint8_t>(headers.calc_bitmap_size());
+        is.read((char *) bitmap.data(), bitmap.size());
+    }
+
     template<int bpp>
-    Image PackedGraphic::draw_body()
+    Image PackedGraphic::draw_body() const
     {
         static_assert(bpp == 4 || bpp == 8);
-        if(palette == nullptr)
+        if (palette == nullptr)
             throw std::runtime_error(err::COLOR_PALETTE_NOT_ASSIGNED);
         if ((bpp == 8 && palette->size() != 256) || (bpp == 4 && palette->size() != 16))
             throw std::runtime_error(err::COLOR_PALETTE_INCOMPATIBLE);
@@ -64,46 +71,67 @@ namespace gmdlib::gfx::gex
         int pix_ind = 0;
         int seg_pix_ind = 0;
 
-        for (uint8_t unpacking_inst: headers.unpacking_process_data) {
-            auto operation = UnpackingOperation(unpacking_inst & 0x80);
-            uint8_t unpack_val = unpacking_inst & 0x7F;
-            int repeats = (unpack_val == 0 ? 4096 : unpack_val * 32) / bpp;
+        auto next_seg = [&]() {
+            bmp_seg++;
+            // pix_ind = bmp_seg->start_offset - hdrs_size;
+            seg_pix_ind = 0;
+        };
 
-            // next segment
-            if (seg_pix_ind > bmp_seg->width * bmp_seg->height) {
-                bmp_seg++;
-                seg_pix_ind = 0;
-                // pix_ind = bmp_seg->start_offset - hdrs_size;
-                if (bmp_seg->is_null()) break;
-            }
+        for (uint8_t unpacking_inst: headers.unpacking_process_data) {
+            if (bmp_seg->is_null()) break;
+
+            auto operation = UnpackingOperation(!!(unpacking_inst & 0x80));
+            uint8_t unpack_val = unpacking_inst & 0x7F;
+
+            int repeats = (unpack_val == 0 ? 4096 : unpack_val * 32) / 8 /*/ bpp */;
 
             for (int r = 0; r < repeats; r++) {
-                uint8_t color_pal_ind{};
-                int cx = seg_pix_ind % bmp_seg->width;
-                int cy = seg_pix_ind / bmp_seg->width;
-                if (cy >= bmp_seg->height) break; // bitmap segment overflow
+                uint bmp_ind{};
+
+                auto get_cx = [&](uint seg_pix) {
+                    return seg_pix % bmp_seg->width;
+                };
+                auto get_cy = [&](uint seg_pix) {
+                    return seg_pix / bmp_seg->width;
+                };
+                auto get_x = [&](uint seg_pix){
+                    return get_cx(seg_pix) + bmp_seg->rel_position_x;
+                };
+                auto get_y = [&](uint seg_pix){
+                    return get_cy(seg_pix) + bmp_seg->rel_position_y;
+                };
+
+                // switch to next segment if previous was filled
+                // the second condition shouldn't happen, but should be handled
+                if (get_cy(seg_pix_ind) >= bmp_seg->height ||
+                    (bpp == 4 && get_cy(seg_pix_ind + 1) == bmp_seg->height)
+                        ) {
+                    next_seg();
+                    if (bmp_seg->is_null()) break;
+                }
 
                 switch (operation) {
                     case UnpackingOperation::draw_n :
-                        if constexpr (bpp == 8)
-                            color_pal_ind = bitmap[pix_ind];
-                        else
-                            color_pal_ind = (bitmap[pix_ind / 2] >> pix_ind % 2) & 0x0F;
-
-                        pix_ind++;
+                        bmp_ind = pix_ind++;
                         break;
                     case UnpackingOperation::repeat_4_bytes :
-                        if constexpr (bpp == 8)
-                            color_pal_ind = bitmap[pix_ind + (r % 4)];
-                        else
-                            color_pal_ind = (bitmap[(pix_ind + (r % 8)) / 2] >> (pix_ind + r) % 2) & 0x0F;
+                        bmp_ind = pix_ind + r % 4;
                         break;
                 }
 
-                img.set_pixel(ColorRGBA(palette->colors.at(color_pal_ind)),
-                              bmp_seg->rel_position_x + cx, bmp_seg->rel_position_y + cy,
-                              false);
-                seg_pix_ind++;
+
+                if constexpr (bpp == 8) {
+                    img.set_pixel(ColorRGBA(palette->at(bitmap[bmp_ind])), get_x(seg_pix_ind), get_y(seg_pix_ind));
+                } else {
+                    img.set_pixel(ColorRGBA(palette->at(bitmap[bmp_ind] & 0x0F)), get_x(seg_pix_ind), get_y(seg_pix_ind));
+                    img.set_pixel(ColorRGBA(palette->at(bitmap[bmp_ind] >> 4)), get_x(seg_pix_ind + 1), get_y(seg_pix_ind + 1));
+                }
+
+                seg_pix_ind += 8 / bpp;
+            }
+
+            if (operation == UnpackingOperation::repeat_4_bytes) {
+                pix_ind += 4 /*32 / bpp */;
             }
         }
 

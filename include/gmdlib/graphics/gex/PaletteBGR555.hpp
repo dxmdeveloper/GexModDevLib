@@ -20,12 +20,14 @@ namespace gmdlib::gfx::gex
 
     public:
         [[nodiscard]] size_t size() const;
+        [[nodiscard]] BGR555 at(uint ind) const;
 
     public:
         PaletteBGR555() = default;
         explicit PaletteBGR555(std::span<uint8_t> bin);
         explicit PaletteBGR555(std::istream &is);
 
+        BGR555 operator[](uint ind);
         friend std::istream &operator>>(std::istream &is, PaletteBGR555 &pal);
     };
 }

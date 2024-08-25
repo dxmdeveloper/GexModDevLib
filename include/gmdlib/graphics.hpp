@@ -1,4 +1,4 @@
 #pragma once
 
 #include "graphics/gex/Graphic.hpp"
-#include "graphics/gex/PackedGraphicHeaders.hpp"
+#include "gmdlib/graphics/gex/PackedGraphic.hpp"

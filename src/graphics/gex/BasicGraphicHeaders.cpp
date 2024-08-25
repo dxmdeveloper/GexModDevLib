@@ -70,19 +70,23 @@ namespace gmdlib::gfx::gex
 
     std::pair<int, int> BasicGraphicHeaders::calc_dimensions() const
     {
-        if(bmp_seg_hdrs.empty())
+        if (bmp_seg_hdrs.empty())
             throw std::runtime_error(err::UNINITIALIZED_STRUCT);
 
-        auto wmm = std::minmax_element(bmp_seg_hdrs.begin(), bmp_seg_hdrs.end() - 1,
-                                       [](auto &a, auto &b) { return a.width < b.width; });
+        auto wmm = std::max_element(bmp_seg_hdrs.begin(), bmp_seg_hdrs.end() - 1,
+                                    [](auto &a, auto &b) {
+                                        return a.width + a.rel_position_x < b.width + b.rel_position_x;
+                                    });
 
-        auto hmm = std::minmax_element(bmp_seg_hdrs.begin(), bmp_seg_hdrs.end() - 1,
-                                       [](auto &a, auto &b) { return a.height < b.height; });
+        auto hmm = std::max_element(bmp_seg_hdrs.begin(), bmp_seg_hdrs.end() - 1,
+                                    [](auto &a, auto &b) {
+                                        return a.height + a.rel_position_y < b.height + b.rel_position_y;
+                                    });
 
-        int w = wmm.second->width - wmm.first->width;
-        int h = hmm.second->height - hmm.second->height;
+        int w = wmm->rel_position_x + wmm->width;
+        int h = hmm->rel_position_y + hmm->height;
 
-        if(w < 0 || h < 0)
+        if (w < 0 || h < 0)
             throw std::runtime_error(err::UNEXPECTED_NEGATIVE_RESULT);
 
         return {w, h};

@@ -7,6 +7,9 @@ include_directories(include)
 
 add_compile_options(-gdwarf-4)
 
+find_package(PNG REQUIRED)
+include_directories(${PNG_INCLUDE_DIRS})
+
 add_executable(GexModLibCpp
         tests/main.cpp
         include/gmdlib/graphics/gex/BmpSegmentHeader.hpp
@@ -33,3 +36,6 @@ add_executable(GexModLibCpp
         src/graphics/gex/PaletteBGR555.cpp
         src/graphics/gex/Graphic.cpp
         src/graphics/gex/PackedGraphic.cpp)
+
+
+target_link_libraries(GexModLibCpp ${PNG_LIBRARY})
