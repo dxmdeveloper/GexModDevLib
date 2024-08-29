@@ -2,7 +2,7 @@
 #include "gmdlib/helpers/binary.hpp"
 #include <stdexcept>
 
-namespace gmdlib::gfx::gex
+namespace gmdlib::graphics::gex
 {
 
     int PrimaryGraphicHeader::get_bpp() const
@@ -23,7 +23,7 @@ namespace gmdlib::gfx::gex
         return (type_signature & 4);
     }
 
-    PrimaryGraphicHeader::PrimaryGraphicHeader(std::span<const uint8_t> bin)
+    PrimaryGraphicHeader::PrimaryGraphicHeader(Span<const uint8_t> bin)
     {
         bin_constructor_body(bin.data(), bin.size());
     }

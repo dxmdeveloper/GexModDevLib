@@ -1,17 +1,21 @@
 cmake_minimum_required(VERSION 3.20)
-project(GexModLibCpp)
+project(GexModDevLib)
 
-set(CMAKE_CXX_STANDARD 20)
-
-include_directories(include)
-
+set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-gdwarf-4)
 
 find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIRS})
 
-add_executable(GexModLibCpp
-        tests/main.cpp
+include_directories(include)
+include_directories(include/gmdlib/3rd_party)
+
+set(3rd_party_sources
+        # https://github.com/martinmoene/span-lite
+        include/gmdlib/3rd_party/span_lite/span.hpp
+)
+
+set(lib_sources
         include/gmdlib/graphics/gex/BmpSegmentHeader.hpp
         src/graphics/gex/BmpSegmentHeader.cpp
         include/gmdlib/helpers/binary.hpp
@@ -35,7 +39,16 @@ add_executable(GexModLibCpp
         include/gmdlib/graphics/gex/PaletteBGR555.hpp
         src/graphics/gex/PaletteBGR555.cpp
         src/graphics/gex/Graphic.cpp
-        src/graphics/gex/PackedGraphic.cpp)
+        src/graphics/gex/PackedGraphic.cpp
+        src/graphics/gex/BasicGraphic.cpp
+        include/gmdlib/common/Span.hpp
+)
+
+add_executable(GexModDevLib
+        ${3rd_party_sources}
+        ${lib_sources}
+        tests/main.cpp
+)
 
 
-target_link_libraries(GexModLibCpp ${PNG_LIBRARY})
+target_link_libraries(GexModDevLib ${PNG_LIBRARY})

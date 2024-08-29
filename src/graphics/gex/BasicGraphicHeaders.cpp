@@ -2,8 +2,9 @@
 #include <gmdlib/common/common.hpp>
 #include <stdexcept>
 #include <algorithm>
+#include <numeric>
 
-namespace gmdlib::gfx::gex
+namespace gmdlib::graphics::gex
 {
 
     size_t BasicGraphicHeaders::get_raw_size_of_headers() const
@@ -17,10 +18,10 @@ namespace gmdlib::gfx::gex
     }
 
     BasicGraphicHeaders::BasicGraphicHeaders(PrimaryGraphicHeader prim_hdr,
-                                             std::span<const BmpSegmentHeader> bmp_seg_hdrs)
+                                             Span<const BmpSegmentHeader> bmp_seg_hdrs)
             : prim_hdr{prim_hdr}, bmp_seg_hdrs(bmp_seg_hdrs.begin(), bmp_seg_hdrs.end()) {}
 
-    BasicGraphicHeaders::BasicGraphicHeaders(std::span<const uint8_t> bin)
+    BasicGraphicHeaders::BasicGraphicHeaders(Span<const uint8_t> bin)
     {
         constexpr size_t phdr_size{PrimaryGraphicHeader::raw_size};
         constexpr size_t seg_size{BmpSegmentHeader::raw_size};
@@ -90,6 +91,13 @@ namespace gmdlib::gfx::gex
             throw std::runtime_error(err::UNEXPECTED_NEGATIVE_RESULT);
 
         return {w, h};
+    }
+
+    size_t BasicGraphicHeaders::calc_bitmap_size() const
+    {
+        return std::accumulate(bmp_seg_hdrs.begin(), bmp_seg_hdrs.end(), 0, [&](auto acc, auto &seg) {
+            return acc + seg.width * seg.height * this->get_bpp() / 8;
+        });
     }
 
 }

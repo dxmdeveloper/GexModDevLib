@@ -10,8 +10,8 @@ int main(int argc, char *argv[])
     std::ifstream graphic_file("test_graphic.bin", std::ios::binary);
     std::ifstream palette_file("test_palette.bin", std::ios::binary);
 
-    gmdlib::gfx::gex::PaletteBGR555 palette(palette_file);
-    gmdlib::gfx::gex::PackedGraphic graphic(graphic_file, palette);
+    gmdlib::graphics::gex::PaletteBGR555 palette(palette_file);
+    gmdlib::graphics::gex::PackedGraphic graphic(graphic_file, palette);
     auto img = graphic.draw();
 
     std::ofstream output("output.png", std::ios::binary);

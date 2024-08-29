@@ -4,7 +4,7 @@
 #include <gmdlib/helpers/binary.hpp>
 #include <gmdlib/common/common.hpp>
 
-namespace gmdlib::gfx::gex
+namespace gmdlib::graphics::gex
 {
 
 /// @brief Headers of packed graphic (lightly compressed).
@@ -15,11 +15,11 @@ namespace gmdlib::gfx::gex
         std::vector<uint8_t> unpacking_process_data;
 
     public:
-        size_t calc_bitmap_size() const;
+        size_t calc_bitmap_size() const override;
 
         PackedGraphicHeaders() = default;
         explicit PackedGraphicHeaders(std::istream &is);
-        explicit PackedGraphicHeaders(std::span<const uint8_t> bin);
+        explicit PackedGraphicHeaders(Span<const uint8_t> bin);
 
         friend std::istream &operator>>(std::istream &is, PackedGraphicHeaders &phdrs);
     };

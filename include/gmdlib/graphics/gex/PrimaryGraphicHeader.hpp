@@ -1,10 +1,10 @@
 #pragma once
 
 #include <cstdint>
-#include <span>
+#include <gmdlib/common/Span.hpp>
 #include <istream>
 
-namespace gmdlib::gfx::gex
+namespace gmdlib::graphics::gex
 {
     struct PrimaryGraphicHeader
     {
@@ -25,7 +25,7 @@ namespace gmdlib::gfx::gex
         PrimaryGraphicHeader() = default;
         PrimaryGraphicHeader(uint16_t struct_pad, uint32_t img_width, uint32_t img_height,
                              int32_t shift_x, int16_t shift_y, uint32_t signature);
-        explicit PrimaryGraphicHeader(std::span<const uint8_t> bin);
+        explicit PrimaryGraphicHeader(Span<const uint8_t> bin);
 
         // operator overloads
         friend std::istream &operator>>(std::istream &is, PrimaryGraphicHeader &phdr);

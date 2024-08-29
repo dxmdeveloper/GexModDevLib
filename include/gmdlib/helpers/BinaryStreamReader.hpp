@@ -2,7 +2,7 @@
 #pragma once
 
 #include <iostream>
-#include <span>
+#include <gmdlib/common/Span.hpp>
 #include <vector>
 #include <memory>
 #include "binary.hpp"
@@ -19,7 +19,7 @@ namespace gmdlib::bin::le
         int16_t read_i16();
         uint32_t read_u32();
         int32_t read_i32();
-        void read(std::span<uint8_t> buf, size_t n);
+        void read(Span<uint8_t> buf, size_t n);
         std::vector<uint8_t> read(size_t n);
 
         // constructors
@@ -95,7 +95,7 @@ namespace gmdlib::bin::le
         return gmdlib::bin::le::read_i32(&val);
     }
 
-    inline void BinaryStreamReader::read(std::span<uint8_t> buf, size_t n)
+    inline void BinaryStreamReader::read(Span<uint8_t> buf, size_t n)
     {
         if (buf.size() < n) throw std::runtime_error("buffer is too small");
         stream->read(reinterpret_cast<char *>(buf.data()), std::streamsize(n));

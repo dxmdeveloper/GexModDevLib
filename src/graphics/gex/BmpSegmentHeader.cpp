@@ -2,7 +2,7 @@
 #include <gmdlib/helpers/binary.hpp>
 #include <stdexcept>
 
-namespace gmdlib::gfx::gex
+namespace gmdlib::graphics::gex
 {
 
     bool BmpSegmentHeader::is_null() const
@@ -10,7 +10,7 @@ namespace gmdlib::gfx::gex
         return width == 0 || height == 0;
     }
 
-    BmpSegmentHeader::BmpSegmentHeader(std::span<const uint8_t> bin)
+    BmpSegmentHeader::BmpSegmentHeader(Span<const uint8_t> bin)
     {
         bin_constructor_body(bin.data(), raw_size);
     }

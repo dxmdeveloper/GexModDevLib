@@ -2,12 +2,12 @@
 
 #include <vector>
 #include <cstdint>
-#include <span>
+#include <gmdlib/common/Span.hpp>
 #include <istream>
 
 using BGR555 = uint16_t;
 
-namespace gmdlib::gfx::gex
+namespace gmdlib::graphics::gex
 {
 
     // palette binary structure:
@@ -24,7 +24,7 @@ namespace gmdlib::gfx::gex
 
     public:
         PaletteBGR555() = default;
-        explicit PaletteBGR555(std::span<uint8_t> bin);
+        explicit PaletteBGR555(Span<uint8_t> bin);
         explicit PaletteBGR555(std::istream &is);
 
         BGR555 operator[](uint ind);

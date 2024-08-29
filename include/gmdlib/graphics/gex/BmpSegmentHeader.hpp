@@ -1,10 +1,10 @@
 #pragma once
 
 #include <cstdint>
-#include <span>
+#include <gmdlib/common/Span.hpp>
 #include <istream>
 
-namespace gmdlib::gfx::gex
+namespace gmdlib::graphics::gex
 {
 
     struct BmpSegmentHeader
@@ -23,7 +23,7 @@ namespace gmdlib::gfx::gex
         // constructors
         BmpSegmentHeader() = default;
         BmpSegmentHeader(uint16_t start_offset, uint8_t width, uint8_t height, int16_t rel_pos_x, int16_t rel_pos_y);
-        explicit BmpSegmentHeader(std::span<const uint8_t> bin);
+        explicit BmpSegmentHeader(Span<const uint8_t> bin);
 
         // operator overloads
         explicit operator bool() const;

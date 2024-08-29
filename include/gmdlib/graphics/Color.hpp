@@ -5,7 +5,7 @@
 
 using BGR555 = uint16_t;
 
-namespace gmdlib::gfx
+namespace gmdlib::graphics
 {
     struct ColorRGBA
     {

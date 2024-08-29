@@ -4,7 +4,9 @@
 #include <vector>
 #include "Color.hpp"
 
-namespace gmdlib::gfx
+using uint = unsigned int;
+
+namespace gmdlib::graphics
 {
     class Image
     {

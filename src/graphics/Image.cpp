@@ -3,7 +3,7 @@
 #include <cassert>
 #include <png.h>
 
-namespace gmdlib::gfx
+namespace gmdlib::graphics
 {
     static void write_png_to_vec(png_structp png_ptr, png_const_bytep data, png_uint_32 bytes_n);
     static void throw_libpng_error(png_struct_def *def, const char *msg);

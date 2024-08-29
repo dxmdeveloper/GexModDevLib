@@ -6,7 +6,7 @@ enum class UnpackingOperation
     draw_n = 0, repeat_4_bytes = 1
 };
 
-namespace gmdlib::gfx::gex
+namespace gmdlib::graphics::gex
 {
     Image PackedGraphic::draw() const
     {
@@ -20,19 +20,19 @@ namespace gmdlib::gfx::gex
         }
     }
 
-    PackedGraphic::PackedGraphic(PackedGraphicHeaders hdrs, std::span<const uint8_t> bmp_bin,
+    PackedGraphic::PackedGraphic(PackedGraphicHeaders hdrs, Span<const uint8_t> bmp_bin,
                                  std::shared_ptr<PaletteBGR555> pal) : Graphic(std::move(pal)), headers{std::move(hdrs)}
     {
         init_bitmap(bmp_bin);
     }
 
-    PackedGraphic::PackedGraphic(PackedGraphicHeaders hdrs, std::span<const uint8_t> bmp_bin, PaletteBGR555 pal)
+    PackedGraphic::PackedGraphic(PackedGraphicHeaders hdrs, Span<const uint8_t> bmp_bin, PaletteBGR555 pal)
             : Graphic(std::move(pal)), headers{std::move(hdrs)}
     {
         init_bitmap(bmp_bin);
     }
 
-    void PackedGraphic::init_bitmap(std::span<const uint8_t> bmp_bin)
+    void PackedGraphic::init_bitmap(Span<const uint8_t> bmp_bin)
     {
         auto bmp_size = uint32_t(headers.calc_bitmap_size());
 
@@ -54,16 +54,18 @@ namespace gmdlib::gfx::gex
         is.read((char *) bitmap.data(), bitmap.size());
     }
 
+    std::reference_wrapper<const BasicGraphicHeaders> PackedGraphic::get_headers() const
+    {
+        return std::ref(headers);
+    }
+
     template<int bpp>
     Image PackedGraphic::draw_body() const
     {
         static_assert(bpp == 4 || bpp == 8);
-        if (palette == nullptr)
-            throw std::runtime_error(err::COLOR_PALETTE_NOT_ASSIGNED);
-        if ((bpp == 8 && palette->size() != 256) || (bpp == 4 && palette->size() != 16))
-            throw std::runtime_error(err::COLOR_PALETTE_INCOMPATIBLE);
+        draw_body_pre_validate<bpp>();
 
-        auto [width, height] = headers.calc_dimensions();
+        auto [width, height] = calc_dimensions();
         Image img(width, height);
         auto bmp_seg = headers.bmp_seg_hdrs.begin();
         // size_t hdrs_size = headers.get_raw_size_of_headers();
@@ -118,8 +120,10 @@ namespace gmdlib::gfx::gex
                 if constexpr (bpp == 8) {
                     img.set_pixel(ColorRGBA(palette->at(bitmap[bmp_ind])), get_x(seg_pix_ind), get_y(seg_pix_ind));
                 } else {
-                    img.set_pixel(ColorRGBA(palette->at(bitmap[bmp_ind] & 0x0F)), get_x(seg_pix_ind), get_y(seg_pix_ind));
-                    img.set_pixel(ColorRGBA(palette->at(bitmap[bmp_ind] >> 4)), get_x(seg_pix_ind + 1), get_y(seg_pix_ind + 1));
+                    img.set_pixel(ColorRGBA(palette->at(bitmap[bmp_ind] & 0x0F)), get_x(seg_pix_ind),
+                                  get_y(seg_pix_ind));
+                    img.set_pixel(ColorRGBA(palette->at(bitmap[bmp_ind] >> 4)), get_x(seg_pix_ind + 1),
+                                  get_y(seg_pix_ind + 1));
                 }
 
                 seg_pix_ind += 8 / bpp;

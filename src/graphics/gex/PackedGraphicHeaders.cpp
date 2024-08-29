@@ -2,7 +2,7 @@
 #include <gmdlib/helpers/BinaryStreamReader.hpp>
 #include <numeric>
 
-namespace gmdlib::gfx::gex
+namespace gmdlib::graphics::gex
 {
     size_t PackedGraphicHeaders::calc_bitmap_size() const
     {
@@ -14,7 +14,7 @@ namespace gmdlib::gfx::gex
         return std::accumulate(unpacking_process_data.begin(), unpacking_process_data.end(), 0, sum_func);
     }
 
-    PackedGraphicHeaders::PackedGraphicHeaders(std::span<const uint8_t> bin)
+    PackedGraphicHeaders::PackedGraphicHeaders(Span<const uint8_t> bin)
             : BasicGraphicHeaders(bin)
     {
         if(!prim_hdr.is_packed())
@@ -45,7 +45,7 @@ namespace gmdlib::gfx::gex
         bin::le::BinaryStreamReader reader(&is);
         uint32_t upkg_dat_len;
         reader >> upkg_dat_len;
-        upkg_dat_len -= 4;
+        upkg_dat_len -= sizeof(upkg_dat_len); // 4 bytes
 
         if (upkg_dat_len > config::MAX_UNPKG_DATA_LEN)
             throw std::runtime_error(err::UNPKG_DATA_LEN_LIMIT_EXCEEDED);

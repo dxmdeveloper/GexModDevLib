@@ -2,7 +2,7 @@
 #include <gmdlib/common/common.hpp>
 #include <gmdlib/helpers/BinaryStreamReader.hpp>
 
-namespace gmdlib::gfx::gex
+namespace gmdlib::graphics::gex
 {
     static int get_color_cnt(uint8_t raw_val);
 
@@ -11,7 +11,7 @@ namespace gmdlib::gfx::gex
         return colors.size();
     }
 
-    PaletteBGR555::PaletteBGR555(std::span<uint8_t> bin)
+    PaletteBGR555::PaletteBGR555(Span<uint8_t> bin)
     {
         if (bin.size() < 4)
             throw std::runtime_error(err::UNEXPECTED_END_OF_DATA);
