@@ -1,4 +1,5 @@
 #include "gmdlib/graphics/gex/BasicGraphic.hpp"
+#include <gmdlib/helpers/binary.hpp>
 #include "gmdlib/common/common.hpp"
 
 namespace gmdlib::graphics::gex
@@ -114,8 +115,9 @@ namespace gmdlib::graphics::gex
                 int x = seg.rel_position_x + pix_ind % seg.width;
                 int y = seg.rel_position_y + pix_ind / seg.width;
 
-                uint8_t pix_val = bitmap.at(pix_ind);
-                img.set_pixel(ColorRGBA(pix_val++), x, y);
+                uint8_t pix_val = bin::le::read_u16(bitmap.data() + pix_ind);
+                img.set_pixel(ColorRGBA(pix_val), x, y);
+                pix_ind += 2;
             }
         }
         return img;

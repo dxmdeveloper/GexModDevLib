@@ -95,9 +95,17 @@ namespace gmdlib::graphics::gex
 
     size_t BasicGraphicHeaders::calc_bitmap_size() const
     {
-        return std::accumulate(bmp_seg_hdrs.begin(), bmp_seg_hdrs.end(), 0, [&](auto acc, auto &seg) {
-            return acc + seg.width * seg.height * this->get_bpp() / 8;
+        auto sum = std::accumulate(bmp_seg_hdrs.begin(), bmp_seg_hdrs.end(), 0, [&](auto acc, auto &seg) {
+            return acc + seg.width * seg.height;
         });
+        switch (get_bpp()) {
+            case 4:
+                return sum / 2;
+            case 16:
+                return sum * 2;
+            default:
+                return sum;
+        }
     }
 
 }
