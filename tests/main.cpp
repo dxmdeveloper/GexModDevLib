@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     std::ifstream palette_file("test_palette.bin", std::ios::binary);
 
     gmdlib::graphics::gex::PaletteBGR555 palette(palette_file);
-    gmdlib::graphics::gex::PackedGraphic graphic(graphic_file, palette);
+    gmdlib::graphics::gex::BasicGraphic graphic(graphic_file, palette);
     auto img = graphic.draw();
 
     std::ofstream output("output.png", std::ios::binary);

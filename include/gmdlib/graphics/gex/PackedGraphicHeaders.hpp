@@ -7,7 +7,6 @@
 namespace gmdlib::graphics::gex
 {
 
-/// @brief Headers of packed graphic (lightly compressed).
     struct PackedGraphicHeaders : public BasicGraphicHeaders
     {
         // structure extends BasicGraphicHeaders with additional properties

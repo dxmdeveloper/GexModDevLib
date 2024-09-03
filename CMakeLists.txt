@@ -42,6 +42,12 @@ set(lib_sources
         src/graphics/gex/PackedGraphic.cpp
         src/graphics/gex/BasicGraphic.cpp
         include/gmdlib/common/Span.hpp
+        include/gmdlib/scanning/LEVScanner.hpp
+        include/gmdlib/scanning/IMemStream.hpp
+        include/gmdlib/scanning/LEVFileChunkMetadata.hpp
+        src/scanning/LEVFileChunkMetadata.cpp
+        src/scanning/LevFileChunk.cpp
+        include/gmdlib/scanning/LevFileChunk.hpp
 )
 
 add_executable(GexModDevLib

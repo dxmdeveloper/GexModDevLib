@@ -9,6 +9,7 @@
 namespace gmdlib::graphics::gex
 {
 
+    /// @brief graphic compressed with RLE (something similar to PackBits is used)
     class PackedGraphic : public gex::Graphic
     {
     private:
