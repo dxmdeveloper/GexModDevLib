@@ -48,6 +48,7 @@ set(lib_sources
         src/scanning/LEVFileChunkMetadata.cpp
         src/scanning/LevFileChunk.cpp
         include/gmdlib/scanning/LevFileChunk.hpp
+        src/scanning/LEVScanner.cpp
 )
 
 add_executable(GexModDevLib

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <gmdlib/helpers/BinaryStreamReader.hpp>
 #include "IMemStream.hpp"
 #include "LevFileChunk.hpp"
@@ -9,7 +11,7 @@ namespace gmdlib::scanning
     class LEVScanner : protected bin::le::BinaryStreamReader
     {
     public:
-        uint32_t gexptr_to_offset(gexptr ptr) const;
+        uint32_t gexptr_to_offset(gexptr ptr, uint chunk_ind) const;
 
         // constructors
         LEVScanner(const std::string& filename);
