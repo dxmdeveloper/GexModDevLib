@@ -17,9 +17,6 @@ namespace gmdlib::scanning
 
     uint32_t LevFileChunk::gexptr_to_offset(gexptr ptr) const
     {
-        if(!exist())
-            throw std::out_of_range("gexptr_to_offset: chunk does not exist");
-
         if (ptr == 0) return 0;
         return get_offset() + (ptr >> 20) * 0x2000 + (ptr & 0xFFFF) - 1;
     }
@@ -37,4 +34,4 @@ namespace gmdlib::scanning
     {
         return exist();
     }
-}// namespace gmdlib::scanning
+}

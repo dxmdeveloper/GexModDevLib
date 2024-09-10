@@ -36,7 +36,7 @@ namespace gmdlib::bin::le
         BinaryStreamReader &operator>>(int16_t &v);
         BinaryStreamReader &operator>>(uint32_t &v);
         BinaryStreamReader &operator>>(int32_t &v);
-    private:
+    protected:
         std::istream *stream;
         bool stream_ownership = false;
     };

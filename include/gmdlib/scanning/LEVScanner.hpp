@@ -19,7 +19,13 @@ namespace gmdlib::scanning
         LEVScanner(IMemStream &stream);
 
     private:
+        void set_active_chunk(uint chunk_ind);
+        uint32_t gexptr_to_offset(gexptr ptr) const;
+        void read_and_follow_gexptr();
+
+    private:
         std::vector<LevFileChunk> chunks;
+        std::reference_wrapper<LevFileChunk> active_chunk;
     };
 
     using IDLScanner = LEVScanner;
