@@ -8,12 +8,12 @@ namespace gmdlib::graphics::gex
 {
     struct PrimaryGraphicHeader
     {
-        uint16_t _struct_pad = 0;
-        uint32_t inf_img_width = 0;
-        uint32_t inf_img_height = 0;
-        int32_t bitmap_shift_x = 0;
-        int16_t bitmap_shift_y = 0;
-        uint32_t type_signature = 0;
+        uint16_t _m_struct_pad = 0;
+        uint32_t m_inf_img_width = 0;
+        uint32_t m_inf_img_height = 0;
+        int32_t m_bitmap_shift_x = 0;
+        int16_t m_bitmap_shift_y = 0;
+        uint32_t m_type_signature = 0;
 
         static constexpr std::size_t raw_size = 20;
 

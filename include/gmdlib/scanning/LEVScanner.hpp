@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gmdlib/helpers/BinaryStreamReader.hpp>
-#include "IMemStream.hpp"
+#include "MemIStream.hpp"
 #include "LevFileChunk.hpp"
 #include <limits>
 
@@ -26,9 +26,9 @@ namespace gmdlib::scanning
         uint get_chunk_index(enum ChunkType type) const;
 
         // constructors
-        LEVScanner(const std::string& filename);
+        LEVScanner(std::string_view filename);
 
-        LEVScanner(IMemStream &stream);
+        LEVScanner(MemIStream &stream);
 
     private:
         void set_active_chunk(uint chunk_ind);
@@ -40,11 +40,15 @@ namespace gmdlib::scanning
         void read_and_follow_gexptr();
         void follow_gexptr(gexptr ptr);
         std::vector<gexptr> read_null_term_gexptr_arr(size_t limit = INT16_MAX);
+
         std::vector<std::vector<uint32_t>> find_tile_ext_bmps();
+        std::vector<uint32_t> find_obj_ext_bmps();
+
+        void constructor_body();
 
     private:
-        std::vector<LevFileChunk> chunks;
-        std::reference_wrapper<LevFileChunk> active_chunk;
+        std::vector<LevFileChunk> m_chunks;
+        std::reference_wrapper<LevFileChunk> m_active_chunk;
     };
 
     using IDLScanner = LEVScanner;

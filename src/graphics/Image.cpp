@@ -10,40 +10,40 @@ namespace gmdlib::graphics
 
     ColorRGBA Image::get_pixel(uint x, uint y, bool boundary_check) const
     {
-        return bitmap[get_index(x, y, boundary_check)];
+        return m_bitmap[get_index(x, y, boundary_check)];
     }
 
     void Image::set_pixel(ColorRGBA color, uint x, uint y, bool boundary_check)
     {
-        bitmap[get_index(x, y, boundary_check)] = color;
+        m_bitmap[get_index(x, y, boundary_check)] = color;
     }
 
-    ColorRGBA *Image::get_bitmap_ptr() const { return bitmap.get(); }
+    ColorRGBA *Image::get_bitmap_ptr() const { return m_bitmap.get(); }
 
 
     std::unique_ptr<ColorRGBA[]> Image::get_bitmap_copy() const
     {
-        size_t byte_size = sizeof(ColorRGBA) * size.first * size.second;
+        size_t byte_size = sizeof(ColorRGBA) * m_size.first * m_size.second;
         auto new_bmp = std::make_unique<ColorRGBA[]>(byte_size);
-        std::copy(bitmap.get(), bitmap.get() + size.first * size.second, new_bmp.get());
+        std::copy(m_bitmap.get(), m_bitmap.get() + m_size.first * m_size.second, new_bmp.get());
         return new_bmp;
     }
 
-    Image::Image(std::pair<int, int> size) : size{size}
+    Image::Image(std::pair<int, int> size) : m_size{size}
     {
         if (size.first == 0 || size.second == 0)
             throw std::runtime_error(err::WIDTH_OR_HEIGHT_EQ_0);
         if (size.first > config::MAX_IMG_WIDTH || size.second > config::MAX_IMG_HEIGHT)
             throw std::runtime_error(err::IMG_WIDTH_OR_HEIGHT_LIMIT_EXCEEDED);
 
-        bitmap = std::make_unique<ColorRGBA[]>(sizeof(ColorRGBA) * size.first * size.second);
+        m_bitmap = std::make_unique<ColorRGBA[]>(sizeof(ColorRGBA) * size.first * size.second);
     }
 
     Image::Image(int width, int height) : Image(std::pair<int, int>(width, height)) {}
 
     std::ptrdiff_t Image::get_index(uint x, uint y, bool boundary_chk) const
     {
-        auto [w, h] = size;
+        auto [w, h] = m_size;
 
         if (boundary_chk) {
             if (x >= w || y >= h) throw std::runtime_error(err::XY_OUT_OF_BOUNDS);
@@ -57,7 +57,7 @@ namespace gmdlib::graphics
     std::vector<uint8_t> Image::to_png() const
     {
         std::vector<uint8_t> png_data;
-        auto [width, height] = size;
+        auto [width, height] = m_size;
 
         // Initialize PNG structures
         png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, throw_libpng_error, nullptr);
@@ -82,7 +82,7 @@ namespace gmdlib::graphics
 
         // Write png data row by row
         for(int h = 0; h < height; h++){
-            png_write_row(png_ptr, (png_const_bytep) &bitmap[h * width]);
+            png_write_row(png_ptr, (png_const_bytep) &m_bitmap[h * width]);
         }
 
         // Finalize

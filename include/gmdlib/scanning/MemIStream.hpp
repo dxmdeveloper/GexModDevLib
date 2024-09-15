@@ -31,14 +31,14 @@ namespace gmdlib::scanning
         }
     };
 
-    struct IMemStream : virtual MemBuf, std::istream
+    struct MemIStream : virtual MemBuf, std::istream
     {
-        IMemStream(const uint8_t *bin, size_t size)
+        MemIStream(const uint8_t *bin, size_t size)
                 : MemBuf(bin, size), std::istream(static_cast<std::streambuf *>(this))
         {
         }
 
-        IMemStream(Span<const uint8_t> bin)
+        MemIStream(Span<const uint8_t> bin)
                 : MemBuf(bin.data(), bin.size()), std::istream(static_cast<std::streambuf *>(this))
         {
         }

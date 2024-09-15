@@ -25,7 +25,7 @@ namespace gmdlib::graphics
         std::ptrdiff_t get_index(uint x, uint y, bool boundary_chk) const;
 
     private:
-        std::pair<int, int> size;
-        std::unique_ptr<ColorRGBA[]> bitmap;
+        std::pair<int, int> m_size;
+        std::unique_ptr<ColorRGBA[]> m_bitmap;
     };
 }

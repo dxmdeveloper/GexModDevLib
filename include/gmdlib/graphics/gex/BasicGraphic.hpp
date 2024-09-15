@@ -9,8 +9,8 @@ namespace gmdlib::graphics::gex
     class BasicGraphic : public gex::Graphic
     {
     private:
-        BasicGraphicHeaders headers;
-        std::vector<uint8_t> bitmap;
+        BasicGraphicHeaders m_headers;
+        std::vector<uint8_t> m_bitmap;
 
     public:
         Image draw() const override;

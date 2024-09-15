@@ -7,7 +7,7 @@ namespace gmdlib::graphics::gex
 
     bool BmpSegmentHeader::is_null() const
     {
-        return width == 0 || height == 0;
+        return m_width == 0 || m_height == 0;
     }
 
     BmpSegmentHeader::BmpSegmentHeader(Span<const uint8_t> bin)
@@ -17,8 +17,8 @@ namespace gmdlib::graphics::gex
 
     BmpSegmentHeader::BmpSegmentHeader(
             uint16_t start_offset, uint8_t width, uint8_t height, int16_t rel_pos_x, int16_t rel_pos_y)
-            : start_offset{start_offset}, width{width}, height{height}, rel_position_x{rel_pos_x},
-              rel_position_y{rel_pos_y} {}
+            : m_start_offset{start_offset}, m_width{width}, m_height{height}, m_rel_position_x{rel_pos_x},
+              m_rel_position_y{rel_pos_y} {}
 
     void BmpSegmentHeader::bin_constructor_body(const void *bin, std::size_t bin_size)
     {
@@ -26,11 +26,11 @@ namespace gmdlib::graphics::gex
         if (bin_size < raw_size)
             throw std::runtime_error("bin_size < bmp_segment.raw_size");
 
-        start_offset = gmdlib::bin::le::read_u16(bin);
-        width = gmdlib::bin::le::read_u8(b + 2);
-        height = gmdlib::bin::le::read_u8(b + 3);
-        rel_position_x = gmdlib::bin::le::read_i16(b + 4);
-        rel_position_y = gmdlib::bin::le::read_i16(b + 6);
+        m_start_offset = gmdlib::bin::le::read_u16(bin);
+        m_width = gmdlib::bin::le::read_u8(b + 2);
+        m_height = gmdlib::bin::le::read_u8(b + 3);
+        m_rel_position_x = gmdlib::bin::le::read_i16(b + 4);
+        m_rel_position_y = gmdlib::bin::le::read_i16(b + 6);
     }
 
     BmpSegmentHeader::operator bool() const

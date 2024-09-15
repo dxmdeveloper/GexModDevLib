@@ -7,7 +7,7 @@ namespace gmdlib::graphics::gex
 
     int PrimaryGraphicHeader::get_bpp() const
     {
-        switch (type_signature & 3) {
+        switch (m_type_signature & 3) {
             case 2:
                 return 16;
             case 1:
@@ -20,7 +20,7 @@ namespace gmdlib::graphics::gex
 
     bool PrimaryGraphicHeader::is_packed() const
     {
-        return (type_signature & 4);
+        return (m_type_signature & 4);
     }
 
     PrimaryGraphicHeader::PrimaryGraphicHeader(Span<const uint8_t> bin)
@@ -31,8 +31,8 @@ namespace gmdlib::graphics::gex
     PrimaryGraphicHeader::PrimaryGraphicHeader(
             uint16_t struct_pad, uint32_t img_width, uint32_t img_height,
             int32_t shift_x, int16_t shift_y, uint32_t signature)
-            : _struct_pad{struct_pad}, inf_img_width{img_width}, inf_img_height{img_height},
-              bitmap_shift_x{shift_x}, bitmap_shift_y{shift_y}, type_signature{signature} {}
+            : _m_struct_pad{struct_pad}, m_inf_img_width{img_width}, m_inf_img_height{img_height},
+              m_bitmap_shift_x{shift_x}, m_bitmap_shift_y{shift_y}, m_type_signature{signature} {}
 
     void PrimaryGraphicHeader::bin_constructor_body(const void *bin, std::size_t bin_size)
     {
@@ -40,12 +40,12 @@ namespace gmdlib::graphics::gex
         if (bin_size < raw_size)
             throw std::runtime_error("bin_size < header.raw_size");
 
-        _struct_pad = gmdlib::bin::le::read_u16(b);
-        inf_img_width = gmdlib::bin::le::read_u32(b + 2);
-        inf_img_height = gmdlib::bin::le::read_u32(b + 6);
-        bitmap_shift_x = gmdlib::bin::le::read_i32(b + 10);
-        bitmap_shift_y = gmdlib::bin::le::read_i16(b + 14);
-        type_signature = gmdlib::bin::le::read_u32(b + 16);
+        _m_struct_pad = gmdlib::bin::le::read_u16(b);
+        m_inf_img_width = gmdlib::bin::le::read_u32(b + 2);
+        m_inf_img_height = gmdlib::bin::le::read_u32(b + 6);
+        m_bitmap_shift_x = gmdlib::bin::le::read_i32(b + 10);
+        m_bitmap_shift_y = gmdlib::bin::le::read_i16(b + 14);
+        m_type_signature = gmdlib::bin::le::read_u32(b + 16);
     }
 
     std::istream &operator>>(std::istream &is, PrimaryGraphicHeader &phdr)

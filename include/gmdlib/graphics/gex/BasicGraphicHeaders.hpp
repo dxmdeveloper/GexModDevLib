@@ -9,8 +9,8 @@ namespace gmdlib::graphics::gex
 
     struct BasicGraphicHeaders
     {
-        PrimaryGraphicHeader prim_hdr;
-        std::vector<BmpSegmentHeader> bmp_seg_hdrs; // null terminated
+        PrimaryGraphicHeader m_prim_hdr;
+        std::vector<BmpSegmentHeader> m_bmp_seg_hdrs; // null terminated
 
     public:
         std::pair<int, int> calc_dimensions() const;

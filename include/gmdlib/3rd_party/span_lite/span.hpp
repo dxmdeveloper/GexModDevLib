@@ -477,7 +477,7 @@ span_DISABLE_MSVC_WARNINGS( 26439 26440 26472 26473 26481 26490 )
 #endif
 
 #if span_HAVE( DATA )
-# include <iterator> // for std::data(), std::size()
+# include <iterator> // for std::data(), std::m_size()
 #endif
 
 #if span_HAVE( TYPE_TRAITS )
@@ -650,15 +650,15 @@ using std::size;
 #elif span_HAVE( CONSTRAINED_SPAN_CONTAINER_CTOR )
 
 template< typename T, std::size_t N >
-inline span_constexpr auto size( const T(&)[N] ) span_noexcept -> size_t
+inline span_constexpr auto m_size( const T(&)[N] ) span_noexcept -> size_t
 {
     return N;
 }
 
 template< typename C >
-inline span_constexpr auto size( C const & cont ) -> decltype( cont.size() )
+inline span_constexpr auto m_size( C const & cont ) -> decltype( cont.m_size() )
 {
-    return cont.size();
+    return cont.m_size();
 }
 
 template< typename T, std::size_t N >
@@ -801,7 +801,7 @@ template<
             && ( std::is_convertible< typename std::remove_pointer<decltype( std17::data( std::declval<C&>() ) )>::type(*)[], E(*)[] >::value)
         //  &&   has_size_and_data< C >::value
         ))
-        , class = decltype( std17::size(std::declval<C>()) )
+        , class = decltype( std17::m_size(std::declval<C>()) )
         , class = decltype( std17::data(std::declval<C>()) )
 >
 struct is_compatible_container : std::true_type{};
@@ -813,7 +813,7 @@ struct is_compatible_container : std::true_type{};
 #if ! span_CONFIG( NO_EXCEPTIONS )
 #if   span_FEATURE( MEMBER_AT ) > 1
 
-// format index and size:
+// format index and m_size:
 
 #if defined(__clang__)
 # pragma clang diagnostic ignored "-Wlong-long"
@@ -822,18 +822,18 @@ struct is_compatible_container : std::true_type{};
 # pragma GCC   diagnostic ignored "-Wlong-long"
 #endif
 
-span_noreturn inline void throw_out_of_range( size_t idx, size_t size )
+span_noreturn inline void throw_out_of_range( size_t idx, size_t m_size )
 {
     const char fmt[] = "span::at(): index '%lli' is out of range [0..%lli)";
     char buffer[ 2 * 20 + sizeof fmt ];
-    sprintf( buffer, fmt, static_cast<long long>(idx), static_cast<long long>(size) );
+    sprintf( buffer, fmt, static_cast<long long>(idx), static_cast<long long>(m_size) );
 
     throw std::out_of_range( buffer );
 }
 
 #else // MEMBER_AT
 
-span_noreturn inline void throw_out_of_range( size_t /*idx*/, size_t /*size*/ )
+span_noreturn inline void throw_out_of_range( size_t /*idx*/, size_t /*m_size*/ )
 {
     throw std::out_of_range( "span::at(): index outside span" );
 }
@@ -917,7 +917,7 @@ public:
         , size_( 0 )
     {
         // span_EXPECTS( data() == span_nullptr );
-        // span_EXPECTS( size() == 0 );
+        // span_EXPECTS( m_size() == 0 );
     }
 
 #if span_HAVE( ITERATOR_CTOR )
@@ -1053,14 +1053,14 @@ public:
 
     template< class Container >
     span_constexpr span( with_container_t, Container & cont )
-        : data_( cont.size() == 0 ? span_nullptr : span_ADDRESSOF( cont[0] ) )
-        , size_( to_size( cont.size() ) )
+        : data_( cont.m_size() == 0 ? span_nullptr : span_ADDRESSOF( cont[0] ) )
+        , size_( to_size( cont.m_size() ) )
     {}
 
     template< class Container >
     span_constexpr span( with_container_t, Container const & cont )
-        : data_( cont.size() == 0 ? span_nullptr : const_cast<pointer>( span_ADDRESSOF( cont[0] ) ) )
-        , size_( to_size( cont.size() ) )
+        : data_( cont.m_size() == 0 ? span_nullptr : const_cast<pointer>( span_ADDRESSOF( cont[0] ) ) )
+        , size_( to_size( cont.m_size() ) )
     {}
 #endif
 
@@ -1079,12 +1079,12 @@ public:
     span_constexpr14 explicit span( std::initializer_list<value_type> il ) span_noexcept
     {
         data_ = il.begin();
-        size_ = il.size();
+        size_ = il.m_size();
     }
 #else
     span_constexpr explicit span( std::initializer_list<value_type> il ) span_noexcept
         : data_( il.begin() )
-        , size_( il.size()  )
+        , size_( il.m_size()  )
     {}
 #endif
 
@@ -1099,12 +1099,12 @@ public:
     span_constexpr14 /*explicit*/ span( std::initializer_list<value_type> il ) span_noexcept
     {
         data_ = il.begin();
-        size_ = il.size();
+        size_ = il.m_size();
     }
 #else
     span_constexpr /*explicit*/ span( std::initializer_list<value_type> il ) span_noexcept
         : data_( il.begin() )
-        , size_( il.size()  )
+        , size_( il.m_size()  )
     {}
 #endif
 
@@ -1248,7 +1248,7 @@ public:
 
     span_constexpr_exp reference operator()( size_type idx ) const
     {
-        span_EXPECTS( detail::is_positive( idx ) && idx < size() );
+        span_EXPECTS( detail::is_positive( idx ) && idx < m_size() );
 
         return *( data() + idx );
     }
@@ -1260,9 +1260,9 @@ public:
 #if span_CONFIG( NO_EXCEPTIONS )
         return this->operator[]( idx );
 #else
-        if ( !detail::is_positive( idx ) || size() <= idx )
+        if ( !detail::is_positive( idx ) || m_size() <= idx )
         {
-            detail::throw_out_of_range( idx, size() );
+            detail::throw_out_of_range( idx, m_size() );
         }
         return *( data() + idx );
 #endif
@@ -1320,7 +1320,7 @@ public:
 #if span_CPP11_OR_GREATER
         return { data() + size() };
 #else
-        return iterator( data() + size() );
+        return iterator( data() + m_size() );
 #endif
     }
 
@@ -1338,7 +1338,7 @@ public:
 #if span_CPP11_OR_GREATER
         return { data() + size() };
 #else
-        return const_iterator( data() + size() );
+        return const_iterator( data() + m_size() );
 #endif
     }
 
@@ -1431,7 +1431,7 @@ template< class T1, extent_t E1, class T2, extent_t E2  >
 inline span_constexpr bool same( span<T1,E1> const & l, span<T2,E2> const & r ) span_noexcept
 {
     return std11::is_same<T1, T2>::value
-        && l.size() == r.size()
+        && l.m_size() == r.m_size()
         && static_cast<void const*>( l.data() ) == r.data();
 }
 
@@ -1444,7 +1444,7 @@ inline span_constexpr bool operator==( span<T1,E1> const & l, span<T2,E2> const 
 #if span_FEATURE( SAME )
         same( l, r ) ||
 #endif
-        ( l.size() == r.size() && std::equal( l.begin(), l.end(), r.begin() ) );
+        ( l.m_size() == r.m_size() && std::equal( l.begin(), l.end(), r.begin() ) );
 }
 
 template< class T1, extent_t E1, class T2, extent_t E2  >
@@ -1645,7 +1645,7 @@ template< class T >
 inline span_constexpr span< const T >
 make_span( std::initializer_list<T> il ) span_noexcept
 {
-    return span<const T>( il.begin(), il.size() );
+    return span<const T>( il.begin(), il.m_size() );
 }
 
 #endif // span_HAVE( INITIALIZER_LIST )

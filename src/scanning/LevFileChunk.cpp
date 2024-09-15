@@ -7,13 +7,13 @@ namespace gmdlib::scanning
         return get_size() > sizeof("dummy");
     }
 
-    uint32_t LevFileChunk::get_ep() const { return entry_point_offset; }
+    uint32_t LevFileChunk::get_ep() const { return m_entry_point_offset; }
 
-    void LevFileChunk::set_ep(uint32_t entry_point) { entry_point_offset = entry_point; }
+    void LevFileChunk::set_ep(uint32_t entry_point) { m_entry_point_offset = entry_point; }
 
-    uint32_t LevFileChunk::get_size() const { return chunk_size; }
+    uint32_t LevFileChunk::get_size() const { return m_chunk_size; }
 
-    uint32_t LevFileChunk::get_offset() const { return chunk_offset; }
+    uint32_t LevFileChunk::get_offset() const { return m_chunk_offset; }
 
     uint32_t LevFileChunk::gexptr_to_offset(gexptr ptr) const
     {
@@ -23,7 +23,7 @@ namespace gmdlib::scanning
 
     gexptr LevFileChunk::offset_to_gexptr(uint32_t offset) const
     {
-        if(!exist())
+        if (!exist())
             throw std::out_of_range("gexptr_to_offset: chunk does not exist");
 
         offset -= get_offset();
@@ -34,4 +34,7 @@ namespace gmdlib::scanning
     {
         return exist();
     }
+
+    LevFileChunk::LevFileChunk(LEVFileChunkMetadata metadata, uint32_t entry_point)
+            : LEVFileChunkMetadata{metadata}, m_entry_point_offset{entry_point} {}
 }

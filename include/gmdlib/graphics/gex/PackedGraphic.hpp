@@ -13,8 +13,8 @@ namespace gmdlib::graphics::gex
     class PackedGraphic : public gex::Graphic
     {
     private:
-        PackedGraphicHeaders headers;
-        std::vector<uint8_t> bitmap;
+        PackedGraphicHeaders m_headers;
+        std::vector<uint8_t> m_bitmap;
 
     public:
         Image draw() const override;

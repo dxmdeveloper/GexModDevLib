@@ -5,7 +5,7 @@ namespace gmdlib::scanning
 
     uint32_t LEVScanner::gexptr_to_offset(gexptr ptr, uint chunk_ind) const
     {
-        auto &ch = chunks.at(chunk_ind);
+        auto &ch = m_chunks.at(chunk_ind);
         if (!ch.exist())
             throw std::runtime_error("No such chunk");
         return ch.gexptr_to_offset(ptr);
@@ -13,11 +13,11 @@ namespace gmdlib::scanning
 
     void LEVScanner::set_active_chunk(uint chunk_ind)
     {
-        auto &ch = chunks.at(chunk_ind);
+        auto &ch = m_chunks.at(chunk_ind);
         if (!ch.exist())
             throw std::runtime_error("No such chunk");
 
-        active_chunk = ch;
+        m_active_chunk = ch;
     }
 
     void LEVScanner::set_active_chunk(enum ChunkType chunk_type)
@@ -27,7 +27,7 @@ namespace gmdlib::scanning
 
     uint32_t LEVScanner::gexptr_to_offset(gexptr ptr) const
     {
-        return active_chunk.get().gexptr_to_offset(ptr);
+        return m_active_chunk.get().gexptr_to_offset(ptr);
     }
 
     void LEVScanner::read_and_follow_gexptr()
@@ -38,13 +38,13 @@ namespace gmdlib::scanning
 
     uint LEVScanner::get_chunk_index(enum ChunkType type) const
     {
-        if (chunks.empty())
-            throw std::runtime_error("No chunks");
+        if (m_chunks.empty())
+            throw std::runtime_error("No m_chunks");
 
-        if (chunks.size() == 1 && type == ChunkType::main)
+        if (m_chunks.size() == 1 && type == ChunkType::main)
             return 0;
 
-        if (chunks.size() == 5 || chunks.size() == 6)
+        if (m_chunks.size() == 5 || m_chunks.size() == 6)
             switch (type) {
                 case ChunkType::unknown:
                     return 0;
@@ -65,28 +65,9 @@ namespace gmdlib::scanning
         throw std::runtime_error("Unknown file type");
     }
 
-    std::vector<std::vector<uint32_t>> LEVScanner::find_tile_ext_bmps()
-    {
-        set_active_chunk_and_go_to_ep(ChunkType::tile_bitmaps);
-
-        auto blocks = read_null_term_gexptr_arr();
-        std::vector<std::vector<uint32_t>> vector(blocks.size());
-        for (int i = 0; i < blocks.size(); i++) {
-            follow_gexptr(blocks[i]);
-            auto bmp_ptrs = read_null_term_gexptr_arr();
-            for (auto p : bmp_ptrs) {
-                follow_gexptr(p);
-                // It is not known yet if there is need to check both width and height
-                if (read_u32() != 0) {
-                    vector[i].push_back(gexptr_to_offset(p));
-                }
-            }
-        }
-    }
-
     void LEVScanner::go_to_entry_point()
     {
-        stream->seekg(active_chunk.get().get_ep());
+        m_stream->seekg(m_active_chunk.get().get_ep());
     }
 
     void LEVScanner::set_active_chunk_and_go_to_ep(uint chunk_ind)
@@ -119,8 +100,79 @@ namespace gmdlib::scanning
             throw std::runtime_error("null gexptr");
 
         // TODO: more checks
-        stream->seekg(offset, std::ios::beg);
+        m_stream->seekg(offset, std::ios::beg);
     }
 
+    std::vector<std::vector<uint32_t>> LEVScanner::find_tile_ext_bmps()
+    {
+        set_active_chunk_and_go_to_ep(ChunkType::tile_bitmaps);
+        auto blocks = read_null_term_gexptr_arr();
+        std::vector<std::vector<uint32_t>> vector(blocks.size());
+
+        for (int i = 0; i < blocks.size(); i++) {
+            follow_gexptr(blocks[i]);
+            auto bmp_ptrs = read_null_term_gexptr_arr();
+            for (auto p: bmp_ptrs) {
+                follow_gexptr(p);
+                // It is not known yet if there is need to check both m_width and m_height
+                if (read_u32() != 0) {
+                    vector[i].push_back(gexptr_to_offset(p));
+                }
+            }
+        }
+    }
+
+
+    std::vector<uint32_t> LEVScanner::find_obj_ext_bmps()
+    {
+        std::vector<uint32_t> vector{};
+        std::array<gexptr, 6> blocks{};
+
+        set_active_chunk_and_go_to_ep(ChunkType::object_bitmaps);
+        for (auto &b: blocks)
+            b = read_u32();
+
+        for (auto b: blocks) {
+            follow_gexptr(b);
+            auto bmp_ptrs = read_null_term_gexptr_arr();
+
+            for (gexptr p: bmp_ptrs) {
+                if (read_u32() != 0) {
+                    vector.push_back(gexptr_to_offset(p));
+                }
+            }
+        }
+
+        return vector;
+    }
+
+    void LEVScanner::constructor_body()
+    {
+        auto ep_seek = [&](LEVFileChunkMetadata &metadata){
+            m_stream->seekg(metadata.m_chunk_offset + metadata.calc_chunk_padding_size(), std::ios::beg);
+            read_and_follow_gexptr();
+            return m_stream->tellg();
+        };
+
+        uint32_t chunk_cnt = read_u32();
+        if (chunk_cnt > 6 /* || chunk_cnt == 0 */) {
+            // one chunk file
+            LEVFileChunkMetadata metadata{};
+            m_stream->seekg(0, std::ios::end);
+            metadata.m_chunk_size = m_stream->tellg();
+            m_chunks.emplace_back(metadata, ep_seek(metadata));
+
+        } else if (chunk_cnt != 0) {
+            // standard level file
+            std::array<LEVFileChunkMetadata, 6> metadata {};
+            m_stream->seekg(12, std::ios::cur);
+            for(int i = 0; i < chunk_cnt; i++)
+                *m_stream >> metadata[i];
+
+            for(int i = 0; i < chunk_cnt; i++)
+                m_chunks.emplace_back(metadata[i], ep_seek(metadata[i]));
+
+        }
+    }
 
 }

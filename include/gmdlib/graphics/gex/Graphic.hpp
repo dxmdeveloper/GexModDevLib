@@ -35,6 +35,6 @@ namespace gmdlib::graphics::gex
         explicit Graphic(PaletteBGR555 &pal);
 
     protected:
-        std::shared_ptr<PaletteBGR555> palette = nullptr;
+        std::shared_ptr<PaletteBGR555> m_palette = nullptr;
     };
 }

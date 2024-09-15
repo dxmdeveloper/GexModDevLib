@@ -43,7 +43,7 @@ set(lib_sources
         src/graphics/gex/BasicGraphic.cpp
         include/gmdlib/common/Span.hpp
         include/gmdlib/scanning/LEVScanner.hpp
-        include/gmdlib/scanning/IMemStream.hpp
+        include/gmdlib/scanning/MemIStream.hpp
         include/gmdlib/scanning/LEVFileChunkMetadata.hpp
         src/scanning/LEVFileChunkMetadata.cpp
         src/scanning/LevFileChunk.cpp

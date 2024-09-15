@@ -11,13 +11,13 @@ namespace gmdlib::graphics::gex
             if (b >= 0x80) return a + bpp / 2;
             return a + (b == 0 ? 4096 / bpp : b * 32 / bpp);
         };
-        return std::accumulate(unpacking_process_data.begin(), unpacking_process_data.end(), 0, sum_func);
+        return std::accumulate(m_unpacking_process_data.begin(), m_unpacking_process_data.end(), 0, sum_func);
     }
 
     PackedGraphicHeaders::PackedGraphicHeaders(Span<const uint8_t> bin)
             : BasicGraphicHeaders(bin)
     {
-        if(!prim_hdr.is_packed())
+        if(!m_prim_hdr.is_packed())
             throw std::runtime_error(err::INVALID_FORMAT_GRAPHIC_TYPE);
 
         bin = bin.subspan(BasicGraphicHeaders::get_raw_size_of_headers());
@@ -33,13 +33,13 @@ namespace gmdlib::graphics::gex
             throw std::runtime_error(err::UNEXPECTED_END_OF_DATA);
 
         bin = bin.subspan(sizeof(upkg_dat_len), upkg_dat_len - sizeof(upkg_dat_len));
-        unpacking_process_data = std::vector<uint8_t>(upkg_dat_len - sizeof(upkg_dat_len));
-        std::copy(bin.begin(), bin.end(), unpacking_process_data.data());
+        m_unpacking_process_data = std::vector<uint8_t>(upkg_dat_len - sizeof(upkg_dat_len));
+        std::copy(bin.begin(), bin.end(), m_unpacking_process_data.data());
     }
 
     PackedGraphicHeaders::PackedGraphicHeaders(std::istream &is) : BasicGraphicHeaders(is)
     {
-        if(!prim_hdr.is_packed())
+        if(!m_prim_hdr.is_packed())
             throw std::runtime_error(err::INVALID_FORMAT_GRAPHIC_TYPE);
 
         bin::le::BinaryStreamReader reader(&is);
@@ -50,8 +50,8 @@ namespace gmdlib::graphics::gex
         if (upkg_dat_len > config::MAX_UNPKG_DATA_LEN)
             throw std::runtime_error(err::UNPKG_DATA_LEN_LIMIT_EXCEEDED);
 
-        unpacking_process_data = std::vector<uint8_t>(upkg_dat_len);
-        reader.read(unpacking_process_data, upkg_dat_len);
+        m_unpacking_process_data = std::vector<uint8_t>(upkg_dat_len);
+        reader.read(m_unpacking_process_data, upkg_dat_len);
     }
 
     std::istream &operator>>(std::istream &is, PackedGraphicHeaders &phdrs)

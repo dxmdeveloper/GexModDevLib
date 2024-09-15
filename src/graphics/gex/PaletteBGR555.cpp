@@ -8,7 +8,7 @@ namespace gmdlib::graphics::gex
 
     size_t PaletteBGR555::size() const
     {
-        return colors.size();
+        return m_colors.size();
     }
 
     PaletteBGR555::PaletteBGR555(Span<uint8_t> bin)
@@ -22,9 +22,9 @@ namespace gmdlib::graphics::gex
         if (bin.size() < c_cnt + 4)
             throw std::runtime_error(err::UNEXPECTED_END_OF_DATA);
 
-        colors = std::vector<BGR555>(c_cnt);
+        m_colors = std::vector<BGR555>(c_cnt);
         for (int i = 0; i < c_cnt; i++) {
-            colors[i] = bin::le::read_u16(bin.data() + 4 + (i * sizeof(BGR555)));
+            m_colors[i] = bin::le::read_u16(bin.data() + 4 + (i * sizeof(BGR555)));
         }
     }
 
@@ -41,8 +41,8 @@ namespace gmdlib::graphics::gex
         is.ignore(3);
 
         bin::le::BinaryStreamReader reader(&is);
-        pal.colors = std::vector<BGR555>(get_color_cnt(c_cnt));
-        for (auto &color: pal.colors) {
+        pal.m_colors = std::vector<BGR555>(get_color_cnt(c_cnt));
+        for (auto &color: pal.m_colors) {
             reader >> color;
         }
         return is;
@@ -50,12 +50,12 @@ namespace gmdlib::graphics::gex
 
     BGR555 PaletteBGR555::at(uint ind) const
     {
-        return colors.at(ind);
+        return m_colors.at(ind);
     }
 
     BGR555 PaletteBGR555::operator[](uint ind)
     {
-        return colors[ind];
+        return m_colors[ind];
     }
 
     static int get_color_cnt(uint8_t raw_val)

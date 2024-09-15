@@ -10,13 +10,13 @@ using BGR555 = uint16_t;
 namespace gmdlib::graphics::gex
 {
 
-    // palette binary structure:
-    // * 1 byte - count of colors. 0 => 16 colors, 1 => 256 colors, 2 => 0 colors (assigned to a 16bpp graphic)
+    // m_palette binary structure:
+    // * 1 byte - count of m_colors. 0 => 16 m_colors, 1 => 256 m_colors, 2 => 0 m_colors (assigned to a 16bpp graphic)
     // * 3 bytes - padding (usually 0xFFFFFF or 0xFFFF00 in some unfinished levels)
-    // * array of colors in BGR555 format (2 bytes for each color)
+    // * array of m_colors in BGR555 format (2 bytes for each color)
     struct PaletteBGR555
     {
-        std::vector<BGR555> colors;
+        std::vector<BGR555> m_colors;
 
     public:
         [[nodiscard]] size_t size() const;
